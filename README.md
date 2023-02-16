@@ -12,11 +12,7 @@ This project was born out of my slight obsession with sporcle.com. I was unable 
 
 `npm install`
 
-### Build
-
-Run the following commands in order:
-
-`npm run build`
+### Build and generate
 
 `npm run data-gen`
 
