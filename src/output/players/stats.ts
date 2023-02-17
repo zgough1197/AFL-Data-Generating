@@ -1,9 +1,9 @@
 import { Career, STAT, YearBounds } from '../../types'
-import { combineQuizData, QuizData } from '../types'
-import { filePathFromParams } from '../utils'
-import { saveForSporlce } from '../fs'
+import { combineQuizData, QuizData, IFileWritten } from '../types'
+import { fileNameFromYears, withFileWritten } from '../utils'
+import { saveForSporlce } from '../../io/fs'
 
-const pathPrefix = 'players/stats/'
+const pathPrefix = 'players/<club>/stats/'
 
 const getTop50 = (statType: STAT, players: Career[], yearBounds: YearBounds): QuizData => {
     const outputData = new QuizData()
@@ -18,13 +18,13 @@ const getTop50 = (statType: STAT, players: Career[], yearBounds: YearBounds): Qu
     return outputData
 }
 
-export const top50 = async (statType: STAT, players: Career[], club:string, yearBounds: YearBounds): Promise<void> => {
-    await saveForSporlce(
-        club,
-        filePathFromParams('Top-50-', yearBounds),
-        getTop50(statType, players, yearBounds),
-        pathPrefix + 'total'
-    )
+export const top50 = async (statType: STAT, players: Career[], club: string, yearBounds: YearBounds): Promise<IFileWritten> => {
+    const f = fileNameFromYears('Top-50' + statType, yearBounds)
+    const d = pathPrefix.replace('<club>', club)
+
+    return withFileWritten(f, d, players.length, async () => {
+        await saveForSporlce(f, d, getTop50(statType, players, yearBounds))
+    })
 }
 
 const getTop10ByYear = (statType: STAT, players: Career[], {forYear, startYear = -Infinity, endYear = Infinity}: YearBounds): QuizData => {
@@ -50,11 +50,11 @@ const getTop10ByYear = (statType: STAT, players: Career[], {forYear, startYear =
     }))
 }
 
-export const top10ByYear = async (statType: STAT, players: Career[], club: string, yearBounds: YearBounds): Promise<void> => {
-    await saveForSporlce(
-        club,
-        filePathFromParams('Top-10-By-Year-', yearBounds),
-        getTop10ByYear(statType, players, yearBounds),
-        pathPrefix + 'yearly'
-    )
+export const top10ByYear = async (statType: STAT, players: Career[], club: string, yearBounds: YearBounds): Promise<IFileWritten> => {
+    const f = fileNameFromYears(`Top-10-${statType}-By-Year`, yearBounds)
+    const d = pathPrefix.replace('<club>', club)
+
+    return withFileWritten(f, d, players.length, async () => {
+        await saveForSporlce(f, d, getTop10ByYear(statType, players, yearBounds))
+    })
 }

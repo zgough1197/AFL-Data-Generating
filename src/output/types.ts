@@ -1,5 +1,20 @@
 import { PlayerInfo } from '../types'
 
+export enum STATUS {
+    OK,
+    ERROR
+}
+
+export interface IFileWritten {
+    status: STATUS,
+    error?: string,
+
+    filename: string,
+    fullPath: string,
+
+    recordsWritten?: number
+}
+
 interface IQuizDataSortOptions {
     byClue?: boolean,
     byAns?: boolean,
@@ -134,5 +149,60 @@ export class QuizDataRow {
             return `${c}\t${a}\t${h}`
         }
         return `${c}\t${a}`
+    }
+}
+
+export interface ISaveReturn {
+    log: string
+}
+
+export class SaveReturn implements ISaveReturn {
+    private _status: STATUS = STATUS.OK
+
+    private readonly _teamName: string
+    private readonly _mainDir: string
+    private readonly _filesWritten: IFileWritten[] = []
+
+    constructor(t: string, m: string) {
+        this._teamName = ''
+        this._mainDir = ''
+    }
+
+    private get OKFileWrites() {
+        return this._filesWritten.filter(f => f.status === STATUS.OK)
+    }
+
+    private get FAILFileWrites() {
+        return this._filesWritten.filter(f => f.status === STATUS.ERROR)
+    }
+
+    private get fileWrittenCount() {
+        return this.OKFileWrites.length
+    }
+
+    private get recordsWrittenCount() {
+        return this.OKFileWrites.reduce((acc, curr) => acc + (curr.recordsWritten || 0), 0)
+    }
+
+    private get successString() {
+        return `Wrote ${this.fileWrittenCount} files containing ${this.recordsWrittenCount}`
+    }
+
+    private get failString() {
+        return `Failed in ${this.FAILFileWrites.join(', ')} but still ${this.successString.toLowerCase}`
+    }
+
+    get log(): string {
+        const writeSummary = this._status == STATUS.OK ? this.successString : this.failString
+        return `${this._teamName}\n\tStatus: ${this._status}\n\t${writeSummary}`
+    }
+
+    add(...writes: IFileWritten[]) {
+        writes.forEach(w => {
+            if (w.status === STATUS.ERROR) {
+                this._status = STATUS.ERROR
+            }
+            this._filesWritten.push(w)
+        })
     }
 }

@@ -14,6 +14,7 @@ export enum STAT {
 export enum CLUB {
     ADEL = 'Adelaide',
     BRIS = 'Brisbane Lions',
+    BB = 'Brisbane Bears',
     CARL = 'Carlton',
     COLL = 'Collingwood',
     ESS = 'Essendon',
@@ -24,16 +25,19 @@ export enum CLUB {
     GC = 'Gold Coast',
     GWS = 'Greater Western Sydney',
     HAW = 'Hawthorn',
+    KAN = 'Kangaroos',
     MEL = 'Melbourne',
     NM = 'North Melbourne',
     PA = 'Port Adelaide',
     RICH = 'Richmond',
+    SM = 'South Melbourne',
     STK = 'St Kilda',
     SYD = 'Sydney',
     UNIV = 'University',
     WC = 'West Coast',
-    BD = 'Western Bulldogs',
-    NONE = ''
+    WB = 'Western Bulldogs',
+    NULL = '',
+    NONE = 'Unknown'
 }
 
 // Interfaces
@@ -203,9 +207,18 @@ export class PlayerYearFromSource extends PlayerYear {
 
         let clubOut: CLUB = CLUB.NONE
 
-        Object.values(CLUB).forEach(c => {
-            if(String(c) == club) clubOut = c
-        })
+        for (const c of Object.values(CLUB)) {
+            if(String(c) == club) {
+                clubOut = c
+
+                if (c === CLUB.NULL) clubOut = CLUB.NONE
+                if (c === CLUB.KAN) clubOut = CLUB.NM
+                if (c === CLUB.FOOT) clubOut = CLUB.WB
+                if (c === CLUB.SM) clubOut = CLUB.SYD
+
+                break
+            }
+        }
 
         const IDAndName = rm[1]
 

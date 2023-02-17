@@ -1,11 +1,11 @@
-import { all, byYear, byYearSplit } from './numbers'
+import { all, byYear, byDecade } from './numbers'
 import { top10ByYear, top50 } from './stats';
 
 const SavePlayers = {
     byNumbers: {
         all,
         byYear,
-        byYearSplit
+        byDecade
     },
     byStats: {
         top50,
